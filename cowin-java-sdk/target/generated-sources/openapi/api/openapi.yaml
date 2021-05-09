@@ -1,0 +1,922 @@
+openapi: 3.0.2
+info:
+  contact:
+    name: Ministry of Health and Family Welfare
+    url: https://www.cowin.gov.in
+  description: Co-WIN Public APIs to find appointment availabilty and to download
+    vaccination certificates. These APIs are available for use by all third party
+    applications. The appointment availability data is cached and may be upto 30 minutes
+    old. Further, these APIs are subject to a rate limit of 100 API calls per 5 minutes
+    per IP. Please consider these points while using the APIs in your application.
+    For further questions, please visit our <a href="https://github.com/cowinapi/developer.cowin/issues"
+    target="_blank">Open Tracker on GitHub</a>.<br>[<i>Updated on 5 May 2021</i>]
+  termsOfService: https://www.cowin.gov.in/terms-condition
+  title: Co-WIN Public APIs
+  version: 1.1.1
+servers:
+- description: Production Server
+  url: https://cdn-api.co-vin.in/api
+paths:
+  /v2/auth/public/generateOTP:
+    post:
+      description: Initiate beneficiary authentication using mobile and OTP
+      operationId: generateOTP
+      requestBody:
+        $ref: '#/components/requestBodies/inline_object'
+        content:
+          application/json:
+            schema:
+              properties:
+                mobile:
+                  example: "9876543210"
+                  minItems: 1
+                  type: string
+              type: object
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+          description: successful operation
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+          description: Bad Request
+        "401":
+          description: Unauthenticated access!
+        "500":
+          description: Internal Server Error
+      summary: Authenticate a beneficiary by Mobile/OTP
+      tags:
+      - User Authentication APIs
+      x-contentType: application/json
+      x-accepts: application/json
+  /v2/auth/public/confirmOTP:
+    post:
+      description: API to confirm the OTP for authentication.
+      operationId: confirmOTP
+      requestBody:
+        $ref: '#/components/requestBodies/inline_object_1'
+        content:
+          application/json:
+            schema:
+              properties:
+                otp:
+                  description: SHA256 of the OTP
+                  example: 8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92
+                  minLength: 64
+                  type: string
+                txnId:
+                  example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+                  format: uuid
+                  type: string
+              type: object
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_1'
+          description: successful operation
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+          description: Bad Request
+        "401":
+          description: Unauthenticated Access
+        "500":
+          description: Internal Server Error
+      summary: Confirm mobile OTP for authentication
+      tags:
+      - User Authentication APIs
+      x-contentType: application/json
+      x-accepts: application/json
+  /v2/admin/location/states:
+    get:
+      description: API to get all the states in India.
+      operationId: states
+      parameters:
+      - description: The locate code of the preferred language such as en_US. The
+          text data will be returned in the preferred language along with default
+          English text.
+        example: hi_IN
+        explode: false
+        in: header
+        name: Accept-Language
+        required: false
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_2'
+            examples:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_2'
+          description: successful operation
+        "401":
+          description: Unauthenticated access!
+        "500":
+          description: Internal Server Error
+      summary: Get states
+      tags:
+      - Metadata APIs
+      x-accepts: application/json
+  /v2/admin/location/districts/{state_id}:
+    get:
+      description: API to get all the districts.
+      operationId: districts
+      parameters:
+      - description: The locate code of the preferred language such as en_US. The
+          text data will be returned in the preferred language along with default
+          English text.
+        example: hi_IN
+        explode: false
+        in: header
+        name: Accept-Language
+        required: false
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: state_id
+        required: true
+        schema:
+          example: "16"
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_3'
+            examples:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_3'
+          description: successful operation
+        "401":
+          description: Unauthenticated access!
+        "500":
+          description: Internal Server Error
+      summary: Get list of districts
+      tags:
+      - Metadata APIs
+      x-accepts: application/json
+  /v2/appointment/sessions/public/findByPin:
+    get:
+      description: API to get planned vaccination sessions on a specific date in a
+        given pin.
+      operationId: findByPin
+      parameters:
+      - description: The locate code of the preferred language such as en_US. The
+          text data will be returned in the preferred language along with default
+          English text.
+        example: hi_IN
+        explode: false
+        in: header
+        name: Accept-Language
+        required: false
+        schema:
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: pincode
+        required: true
+        schema:
+          example: "110001"
+          minLength: 3
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: date
+        required: true
+        schema:
+          example: 31-03-2021
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  sessions:
+                    $ref: '#/components/schemas/SessionsSchema'
+          description: successful operation
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+          description: Bad Request
+        "401":
+          description: Unauthenticated Access
+        "500":
+          description: Internal Server Error
+      summary: Get vaccination sessions by PIN
+      tags:
+      - Appointment Availability APIs
+      x-accepts: application/json
+  /v2/appointment/sessions/public/findByDistrict:
+    get:
+      description: API to get planned vaccination sessions on a specific date in a
+        given district.
+      operationId: findByDistrict
+      parameters:
+      - description: The locate code of the preferred language such as en_US. The
+          text data will be returned in the preferred language along with default
+          English text.
+        example: hi_IN
+        explode: false
+        in: header
+        name: Accept-Language
+        required: false
+        schema:
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: district_id
+        required: true
+        schema:
+          example: "512"
+          minLength: 3
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: date
+        required: true
+        schema:
+          example: 31-03-2021
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  sessions:
+                    $ref: '#/components/schemas/SessionsSchema'
+          description: successful operation
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+          description: Bad Request
+        "401":
+          description: Unauthenticated Access
+        "500":
+          description: Internal Server Error
+      summary: Get vaccination sessions by district
+      tags:
+      - Appointment Availability APIs
+      x-accepts: application/json
+  /v2/appointment/sessions/public/calendarByPin:
+    get:
+      description: API to get planned vaccination sessions for 7 days from a specific
+        date in a given pin.
+      operationId: calendarByPin
+      parameters:
+      - description: The locate code of the preferred language such as en_US. The
+          text data will be returned in the preferred language along with default
+          English text.
+        example: hi_IN
+        explode: false
+        in: header
+        name: Accept-Language
+        required: false
+        schema:
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: pincode
+        required: true
+        schema:
+          example: "110001"
+          minLength: 3
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: date
+        required: true
+        schema:
+          example: 31-03-2021
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  centers:
+                    $ref: '#/components/schemas/SessionCalendarEntriesSchema'
+          description: successful operation
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+          description: Bad Request
+        "401":
+          description: Unauthenticated Access
+        "500":
+          description: Internal Server Error
+      summary: Get vaccination sessions by PIN for 7 days
+      tags:
+      - Appointment Availability APIs
+      x-accepts: application/json
+  /v2/appointment/sessions/public/calendarByDistrict:
+    get:
+      description: API to get planned vaccination sessions for 7 days from a specific
+        date in a given district.
+      operationId: calendarByDistrict
+      parameters:
+      - description: The locate code of the preferred language such as en_US. The
+          text data will be returned in the preferred language along with default
+          English text.
+        example: hi_IN
+        explode: false
+        in: header
+        name: Accept-Language
+        required: false
+        schema:
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: district_id
+        required: true
+        schema:
+          example: "512"
+          minLength: 3
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: date
+        required: true
+        schema:
+          example: 31-03-2021
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                properties:
+                  centers:
+                    $ref: '#/components/schemas/SessionCalendarEntriesSchema'
+          description: successful operation
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+          description: Bad Request
+        "401":
+          description: Unauthenticated Access
+        "500":
+          description: Internal Server Error
+      summary: Get vaccination sessions by district for 7 days
+      tags:
+      - Appointment Availability APIs
+      x-accepts: application/json
+  /v2/registration/certificate/public/download:
+    get:
+      description: API to download vaccination certificate in PDF format by beneficiary
+        reference id. This API requires a <i>Bearer</i> token acquired with user mobile
+        OTP validation as defined in User Authentication APIs.
+      operationId: download
+      parameters:
+      - explode: true
+        in: query
+        name: beneficiary_reference_id
+        required: true
+        schema:
+          example: "1234567890123"
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/pdf:
+              schema:
+                format: binary
+                type: string
+          description: Successful Operation
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+          description: Bad Request
+        "401":
+          description: Unauthenticated Access
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Download vaccination certificate in PDF format by beneficiary reference
+        id
+      tags:
+      - Certificate APIs
+      x-accepts: application/json
+components:
+  requestBodies:
+    inline_object_1:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/inline_object_1'
+    inline_object:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/inline_object'
+  schemas:
+    CenterResponseSchema:
+      properties:
+        center_id:
+          example: 1234
+          minLength: 1
+          type: number
+        name:
+          example: District General Hostpital
+          minLength: 1
+          type: string
+        name_l:
+          description: Name in preferred language as specified in Accept-Language
+            header parameter.
+          example: ""
+          minLength: 1
+          type: string
+        address:
+          example: 45 M G Road
+          minLength: 1
+          type: string
+        address_l:
+          description: Address line in preferred language as specified in Accept-Language
+            header parameter.
+          example: ""
+          minLength: 1
+          type: string
+        state_name:
+          example: Maharashtra
+          type: string
+        state_name_l:
+          description: State name in preferred language as specified in Accept-Language
+            header parameter.
+          example: ""
+          minLength: 1
+          type: string
+        district_name:
+          example: Satara
+          type: string
+        district_name_l:
+          description: District name in preferred language as specified in Accept-Language
+            header parameter.
+          example: ""
+          minLength: 1
+          type: string
+        block_name:
+          example: Jaoli
+          type: string
+        block_name_l:
+          description: Block name in preferred language as specified in Accept-Language
+            header parameter.
+          example: ""
+          minLength: 1
+          type: string
+        pincode:
+          example: "413608"
+          type: string
+        lat:
+          example: 28.7
+          format: float
+          maximum: 37.1
+          minimum: 8.06
+          type: number
+        long:
+          example: 77.1
+          format: float
+          maximum: 97.41
+          minimum: 68.11
+          type: number
+        from:
+          example: 09:00:00
+          format: partial-time
+          type: string
+        to:
+          example: 18:00:00
+          format: partial-time
+          type: string
+        fee_type:
+          description: Fee charged for vaccination
+          enum:
+          - Free
+          - Paid
+          example: Paid
+          type: string
+      required:
+      - block_name
+      - center_id
+      - district_name
+      - fee_type
+      - from
+      - name
+      - pincode
+      - state_name
+      - to
+      type: object
+    SessionsSchema:
+      items:
+        $ref: '#/components/schemas/SessionResponseSchema'
+      type: array
+      uniqueItems: true
+    SessionResponseSchema:
+      allOf:
+      - $ref: '#/components/schemas/CenterResponseSchema'
+      - $ref: '#/components/schemas/SessionResponseSchema_allOf'
+    SessionCalendarEntriesSchema:
+      items:
+        $ref: '#/components/schemas/SessionCalendarEntrySchema'
+      type: array
+      uniqueItems: true
+    SessionCalendarEntrySchema:
+      properties:
+        center_id:
+          example: 1234
+          minLength: 1
+          type: number
+        name:
+          example: District General Hostpital
+          minLength: 1
+          type: string
+        name_l:
+          description: Name in preferred language as specified in Accept-Language
+            header parameter.
+          example: ""
+          minLength: 1
+          type: string
+        address:
+          example: 45 M G Road
+          minLength: 1
+          type: string
+        address_l:
+          description: Address line in preferred language as specified in Accept-Language
+            header parameter.
+          example: ""
+          minLength: 1
+          type: string
+        state_name:
+          example: Maharashtra
+          type: string
+        state_name_l:
+          description: State name in preferred language as specified in Accept-Language
+            header parameter.
+          example: ""
+          minLength: 1
+          type: string
+        district_name:
+          example: Satara
+          type: string
+        district_name_l:
+          description: District name in preferred language as specified in Accept-Language
+            header parameter.
+          example: ""
+          minLength: 1
+          type: string
+        block_name:
+          example: Jaoli
+          type: string
+        block_name_l:
+          description: Block name in preferred language as specified in Accept-Language
+            header parameter.
+          example: ""
+          minLength: 1
+          type: string
+        pincode:
+          example: "413608"
+          type: string
+        lat:
+          example: 28.7
+          format: float
+          maximum: 37.1
+          minimum: 8.06
+          type: number
+        long:
+          example: 77.1
+          format: float
+          maximum: 97.41
+          minimum: 68.11
+          type: number
+        from:
+          example: 09:00:00
+          format: partial-time
+          type: string
+        to:
+          example: 18:00:00
+          format: partial-time
+          type: string
+        fee_type:
+          description: Fee charged for vaccination
+          enum:
+          - Free
+          - Paid
+          example: Free
+          type: string
+        vaccine_fees:
+          items:
+            $ref: '#/components/schemas/VaccineFeeSchema'
+          type: array
+          uniqueItems: true
+        sessions:
+          items:
+            $ref: '#/components/schemas/SessionCalendarEntrySchema_sessions'
+          type: array
+      required:
+      - block_name
+      - center_id
+      - district_name
+      - fee_type
+      - from
+      - name
+      - pincode
+      - sessions
+      - state_name
+      - to
+      type: object
+    VaccineFeeListSchema:
+      items:
+        $ref: '#/components/schemas/VaccineFeeSchema'
+      type: array
+      uniqueItems: true
+    VaccineFeeSchema:
+      properties:
+        vaccine:
+          example: COVISHIELD
+          type: string
+        fee:
+          example: "250"
+          type: string
+      required:
+      - fee
+      - vaccine
+      type: object
+    inline_object:
+      properties:
+        mobile:
+          example: "9876543210"
+          minItems: 1
+          type: string
+      type: object
+    inline_response_200:
+      example:
+        txnId: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+      properties:
+        txnId:
+          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+          format: uuid
+          minItems: 1
+          type: string
+      type: object
+    inline_response_400:
+      properties:
+        errorCode:
+          example: USRRES0001
+          type: string
+        error:
+          example: Input parameter missing
+          type: string
+      type: object
+    inline_object_1:
+      properties:
+        otp:
+          description: SHA256 of the OTP
+          example: 8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92
+          minLength: 64
+          type: string
+        txnId:
+          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+          format: uuid
+          type: string
+      type: object
+    inline_response_200_1:
+      example:
+        token: token
+      properties:
+        token:
+          type: string
+      type: object
+    inline_response_200_2_states:
+      example:
+        state_name: Andaman and Nicobar Islands
+        state_id: 58
+        state_name_l: ""
+      properties:
+        state_id:
+          example: 58
+          type: number
+        state_name:
+          example: Andaman and Nicobar Islands
+          minLength: 1
+          type: string
+        state_name_l:
+          description: State name in preferred language as specified in Accept-Language
+            header parameter.
+          example: ""
+          minLength: 1
+          type: string
+      required:
+      - state_id
+      - state_name
+      type: object
+    inline_response_200_2:
+      example:
+        ttl: 0.8008281904610115
+        states:
+        - state_name: Andaman and Nicobar Islands
+          state_id: 58
+          state_name_l: ""
+        - state_name: Andaman and Nicobar Islands
+          state_id: 58
+          state_name_l: ""
+      properties:
+        states:
+          items:
+            $ref: '#/components/schemas/inline_response_200_2_states'
+          minItems: 1
+          type: array
+          uniqueItems: true
+        ttl:
+          description: Time in hours to cache the data. Client applications can use
+            this data for this many number of hours before calling this API again.
+          type: number
+      type: object
+    inline_response_200_3_districts:
+      example:
+        district_name: Ahmednagar
+        district_name_l: ""
+        state_id: 16
+        district_id: 391
+      properties:
+        state_id:
+          example: 16
+          type: number
+        district_id:
+          example: 391
+          type: number
+        district_name:
+          example: Ahmednagar
+          minLength: 1
+          type: string
+        district_name_l:
+          description: District name in preferred language as specified in Accept-Language
+            header parameter.
+          example: ""
+          minLength: 1
+          type: string
+      required:
+      - district_id
+      - district_name
+      type: object
+    inline_response_200_3:
+      example:
+        districts:
+        - district_name: Ahmednagar
+          district_name_l: ""
+          state_id: 16
+          district_id: 391
+        - district_name: Ahmednagar
+          district_name_l: ""
+          state_id: 16
+          district_id: 391
+        ttl: 0.8008281904610115
+      properties:
+        districts:
+          items:
+            $ref: '#/components/schemas/inline_response_200_3_districts'
+          minItems: 1
+          type: array
+          uniqueItems: true
+        ttl:
+          description: Time in hours to cache the data. Client applications can use
+            this data for this many number of hours before calling this API again.
+          type: number
+      type: object
+    SessionResponseSchema_allOf:
+      properties:
+        fee:
+          example: "250"
+          type: string
+        session_id:
+          format: uuid
+          minLength: 1
+          type: string
+        date:
+          example: 31-05-2021
+          minLength: 1
+          type: string
+        available_capacity:
+          example: 50
+          type: number
+        min_age_limit:
+          example: 18
+          type: number
+        vaccine:
+          example: COVISHIELD
+          type: string
+        slots:
+          description: Array of slot names
+          example:
+          - FORENOON
+          - AFTERNOON
+          items:
+            type: string
+          minItems: 1
+          type: array
+          uniqueItems: true
+      required:
+      - available_capacity
+      - block_name
+      - center_id
+      - date
+      - district_name
+      - fee
+      - fee_type
+      - from
+      - min_age_limit
+      - name
+      - pincode
+      - session_id
+      - slots
+      - state_name
+      - to
+      - vaccine
+      type: object
+    SessionCalendarEntrySchema_sessions:
+      properties:
+        session_id:
+          format: uuid
+          minLength: 1
+          type: string
+        date:
+          example: 31-05-2021
+          minLength: 1
+          type: string
+        available_capacity:
+          example: 50
+          type: number
+        min_age_limit:
+          example: 18
+          type: number
+        vaccine:
+          example: COVISHIELD
+          type: string
+        slots:
+          description: Array of slot names
+          example:
+          - FORENOON
+          - AFTERNOON
+          items:
+            type: string
+          minItems: 1
+          type: array
+          uniqueItems: true
+      required:
+      - available_capacity
+      - date
+      - fee
+      - fee_type
+      - from
+      - min_age_limit
+      - session_id
+      - slots
+      - to
+      - vaccine
+      type: object
+  securitySchemes:
+    BearerAuth:
+      bearerFormat: JWT
+      scheme: bearer
+      type: http
+
