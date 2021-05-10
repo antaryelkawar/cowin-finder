@@ -1,0 +1,6 @@
+{
+	"webhook-url": "https://maker.ifttt.com/trigger/notify_cowin/with/key/fKYMWaMcG5ATaVjzj0m_bDFlYisi02AjKNGiLuYD_lj",
+	"district-id": "365",
+	"polling-slow": 60,
+	"polling-fast": 10
+}

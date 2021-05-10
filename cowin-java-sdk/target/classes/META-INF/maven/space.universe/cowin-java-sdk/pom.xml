@@ -25,19 +25,6 @@
 							</configOptions>
 						</configuration>
 					</execution>
-					<execution>
-						<goals> 
-							<goal>generate</goal>
-						</goals>
-						<configuration>
-							<inputSpec>${project.basedir}/src/main/resources/cowin-protected.yaml</inputSpec>
-							<configurationFile>${project.basedir}/src/main/resources/config-protected.json</configurationFile>
-							<generatorName>java</generatorName>
-							<configOptions>
-								<sourceFolder>src/gen/java/main</sourceFolder>
-							</configOptions>
-						</configuration>
-					</execution>
 				</executions>
 			</plugin>
 		</plugins>

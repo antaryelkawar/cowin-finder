@@ -35,7 +35,7 @@ import javax.validation.Valid;
 /**
  * InlineResponse2003
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2021-05-09T19:44:24.133367300+05:30[Asia/Calcutta]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2021-05-10T22:36:34.068661500+05:30[Asia/Calcutta]")
 public class InlineResponse2003 implements Serializable {
   private static final long serialVersionUID = 1L;
 
